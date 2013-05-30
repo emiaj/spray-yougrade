@@ -7,7 +7,7 @@ import MediaTypes._
 import spray.json._
 import DefaultJsonProtocol._
 
-trait QuizLanguagesService extends HttpService {
+trait QuizLanguagesService extends HttpService with CrossLocationRouteDirectives {
   implicit val languageFormat = jsonFormat2(Language)
   private val availableLanguages = List(Language("en","English"),Language("es","Español"))  
   val quizLanguagesServiceRoutes =
@@ -15,8 +15,9 @@ trait QuizLanguagesService extends HttpService {
       get {
         respondWithMediaType(`application/json`) { 
           complete {
-            availableLanguages.toJson.prettyPrint
-            
+            fromObjectCross("*"){
+            	availableLanguages.toJson.prettyPrint
+            }            
           }
         }
       }
