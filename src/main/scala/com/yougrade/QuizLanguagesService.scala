@@ -7,21 +7,27 @@ import MediaTypes._
 import spray.json._
 import DefaultJsonProtocol._
 
-trait QuizLanguagesService extends HttpService with CrossLocationRouteDirectives {
+trait QuizLanguagesService extends HttpService {
   implicit val languageFormat = jsonFormat2(Language)
-  private val availableLanguages = List(Language("en","English"),Language("es","Español"))  
+  private val availableLanguages = List(Language("en","English"))  
   val quizLanguagesServiceRoutes =
     path("languages/list") {
       get {
-        respondWithMediaType(`application/json`) { 
-          complete {
-            fromObjectCross("*"){
-            	availableLanguages.toJson.prettyPrint
-            }            
+        val data = availableLanguages.toJson.prettyPrint
+        jsonpWithParameter("callback") {
+          respondWithMediaType(`application/json`) {
+            complete{
+              data
+              }
+            }
+          }~
+          respondWithMediaType(`application/json`) {
+            complete{
+              data
+              }
+            }
           }
-        }
       }
-    }
-}
+  }
 
 case class Language(name:String,title:String)

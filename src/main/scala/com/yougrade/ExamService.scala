@@ -18,7 +18,7 @@ import DefaultJsonProtocol._
 
 import akka.actor.Actor
 
-trait ExamService extends HttpService {
+trait ExamService extends HttpService with CrossLocationRouteDirectives {
     
   var exams = mutable.Map.empty[String,ExamData]
   
@@ -43,13 +43,14 @@ trait ExamService extends HttpService {
   
   implicit val quizAnswerFormat = jsonFormat2(QuizAnswer)
   implicit val examDataFormat = jsonFormat2(ExamData)
+  implicit val examsCountFormat = jsonFormat1(ExamsCount)
   
   val examServiceRoutes =
     path("exams/count") { 
     get {
       respondWithMediaType(`application/json`) {
-        complete {
-          Map(("count",exams.size)).toJson.prettyPrint
+        complete {              
+          ExamsCount(exams.size).toJson.prettyPrint
           }
         }
       }
@@ -65,7 +66,9 @@ trait ExamService extends HttpService {
         post {
           formFields('question,'alternative).as(UpdateAnswerCommand){ command =>
             complete {
-              updateAnswer(key,command.question,command.alternative).toJson.prettyPrint
+              fromObjectCross("*"){
+            	updateAnswer(key,command.question,command.alternative).toJson.prettyPrint
+            	}
               }
           }
         }
@@ -75,8 +78,8 @@ trait ExamService extends HttpService {
 object ExamsCountCommand
 
 case class UpdateAnswerCommand(question:Int,alternative:Int)
-case class ExamDataCommand(exam:String)
 
+case class ExamsCount(count:Int)
 case class QuizAnswer(question:Int,alternative:Int)
 case class ExamData(key:String,answers:List[QuizAnswer])
 
