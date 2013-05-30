@@ -20,13 +20,8 @@ trait QuizLanguagesService extends HttpService {
               data
               }
             }
-          }~
-          respondWithMediaType(`application/json`) {
-            complete{
-              data
-              }
-            }
           }
+        }
       }
   }
 
