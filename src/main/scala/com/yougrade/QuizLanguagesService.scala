@@ -22,4 +22,5 @@ trait QuizLanguagesService extends HttpService {
       }
     }
 }
+
 case class Language(name:String,title:String)
