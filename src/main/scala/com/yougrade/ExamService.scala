@@ -1,10 +1,24 @@
 package com.yougrade
 
+import akka.actor.Actor
+import spray.routing._
+import spray.http._
+import MediaTypes._
+import spray.json._
+import DefaultJsonProtocol._
+
 import scala.collection.mutable
 
 import akka.actor.Actor
+import spray.routing._
+import spray.http._
+import MediaTypes._
+import spray.json._
+import DefaultJsonProtocol._
 
-class ExamStoreActor extends Actor {
+import akka.actor.Actor
+
+trait ExamService extends HttpService {
     
   var exams = mutable.Map.empty[String,ExamData]
   
@@ -27,16 +41,40 @@ class ExamStoreActor extends Actor {
     update
   }  
   
-  def receive = {
-    case ExamsCountCommand => exams.size
-    case ExamDataCommand(key) => getExamData(key)
-    case UpdateAnswerCommand(key,question,alternative) => updateAnswer(key,question,alternative)
-  }
+  implicit val quizAnswerFormat = jsonFormat2(QuizAnswer)
+  implicit val examDataFormat = jsonFormat2(ExamData)
+  
+  val examServiceRoutes =
+    path("exams/count") { 
+    get {
+      respondWithMediaType(`application/json`) {
+        complete {
+          Map(("count",exams.size)).toJson.prettyPrint
+          }
+        }
+      }
+    } ~
+    path("exams/data" / PathElement){key => 
+      get {
+        respondWithMediaType(`application/json`) {
+          complete {
+            getExamData(key).toJson.prettyPrint
+            }
+          }
+        }~ 
+        post {
+          formFields('question,'alternative).as(UpdateAnswerCommand){ command =>
+            complete {
+              updateAnswer(key,command.question,command.alternative).toJson.prettyPrint
+              }
+          }
+        }
+      }
 }
 
 object ExamsCountCommand
 
-case class UpdateAnswerCommand(key:String,question:Int,alternative:Int)
+case class UpdateAnswerCommand(question:Int,alternative:Int)
 case class ExamDataCommand(exam:String)
 
 case class QuizAnswer(question:Int,alternative:Int)

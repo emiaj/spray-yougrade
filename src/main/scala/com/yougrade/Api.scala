@@ -5,6 +5,10 @@ class Api extends Actor
 	with HttpServiceActor 
 	with QuizLanguagesService 
 	with QuizService
+	with ExamService
 {
-	def receive = runRoute(quizLanguagesServiceRoutes ~ quizServiceRoutes)
+	def receive = runRoute(quizLanguagesServiceRoutes ~ 
+	    quizServiceRoutes ~ 
+	    examServiceRoutes
+	    )
 }
