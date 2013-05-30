@@ -55,33 +55,37 @@ trait QuizService extends HttpService {
                       QuizAlternative("Because Sheldon saw it wasn't a real time machine."),
                       QuizAlternative("Because it was nothing like the time machine in the movie."),
                       QuizAlternative("Because the time machine was damaged.")                      
-                      )                  
-              ))
+                      )))                      
               )
-      )
+      ).map(x=>(x.header.id,x)).toMap
   
-  private val quizzesByLang = quizzes.map(_.header)
+  private val quizzesByLang = quizzes.map(x=>x._2.header).groupBy(_.lang)
   
   val quizServiceRoutes =    
     path("quizzes" / IntNumber) { id =>
-        get {
+      val quiz = quizzes.get(id)     
+      get {
+        jsonpWithParameter("callback") {
           respondWithMediaType(`application/json`){
             complete {
-              quizzes(0).toJson.prettyPrint
+              quiz.toJson.prettyPrint
+              }
             }
           }
         }
-    } ~
-    path("quizzes" / PathElement) { lang =>
-      get {
-        respondWithMediaType(`application/json`) { 
-          complete {            
-            quizzesByLang.toJson.prettyPrint
+      } ~
+      path("quizzes" / PathElement) { lang =>
+        get {
+          jsonpWithParameter("callback") {
+            respondWithMediaType(`application/json`) {
+              complete {                
+                quizzesByLang.get(lang).toJson.prettyPrint
+                }
+              }
+            }
           }
-        }
-      }
-    }  	
-}
+        }      
+  }
 case class QuizHeader(id:Int,title:String,description:String,thumbnail:String,lang:String)
 case class QuizAlternative(text:String)
 case class QuizQuestion(description:String,video:String,alternatives:List[QuizAlternative])
