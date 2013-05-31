@@ -13,11 +13,10 @@ trait QuizLanguagesService extends HttpService {
   val quizLanguagesServiceRoutes =
     path("languages/list") {
       get {
-        val data = availableLanguages.toJson.prettyPrint
         jsonpWithParameter("callback") {
           respondWithMediaType(`application/json`) {
             complete{
-              data
+              availableLanguages.toJson.prettyPrint
               }
             }
           }
