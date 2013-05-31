@@ -9,11 +9,13 @@ import spray.routing.HListDeserializer._
 import spray.routing._
 import spray.routing.directives._
 import spray.routing.directives.MethodDirectives._
-import spray.http.HttpMethods
+import spray.http.HttpMethods._
+import spray.httpx._
+
 trait ExamService extends HttpService 
 with CrossLocationRouteDirectives 
 with CrossDomainOptionsDirectives
-with spray.httpx.SprayJsonSupport
+with SprayJsonSupport
 {
     
   var exams = mutable.Map.empty[String,ExamData]
@@ -71,9 +73,9 @@ with spray.httpx.SprayJsonSupport
             }
           }
         }~
-        MethodDirectives.method(HttpMethods.OPTIONS) {
+        MethodDirectives.method(OPTIONS) {
           complete{
-            withOptions("*","POST,OPTIONS")
+            withOptions("*",OPTIONS,POST)
           }
         }
       }
