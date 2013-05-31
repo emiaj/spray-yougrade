@@ -15,7 +15,7 @@ trait QuizService extends HttpService {
   
   private val quizzes = List(
       Quiz(QuizHeader(1,
-          "Learning English with \"The Big Bang Theory\"",
+          "Learn English with \"The Big Bang Theory\"",
           "Show your knowledge on the English language using videos from The Big Bang Theory",
           "http://img.youtube.com/vi/fRaUVp5DfRk/0.jpg",
           "en"),
@@ -63,12 +63,11 @@ trait QuizService extends HttpService {
   
   val quizServiceRoutes =    
     path("quizzes" / IntNumber) { id =>
-      val quiz = quizzes.get(id)     
       get {
         jsonpWithParameter("callback") {
           respondWithMediaType(`application/json`){
             complete {
-              quiz.toJson.prettyPrint
+              quizzes.get(id).toJson.prettyPrint
               }
             }
           }

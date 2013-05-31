@@ -1,24 +1,20 @@
 package com.yougrade
 
-import akka.actor.Actor
-import spray.routing._
-import spray.http._
-import MediaTypes._
-import spray.json._
-import DefaultJsonProtocol._
-
 import scala.collection.mutable
-
-import akka.actor.Actor
-import spray.routing._
-import spray.http._
-import MediaTypes._
+import spray.http.MediaTypes._
 import spray.json._
-import DefaultJsonProtocol._
-
-import akka.actor.Actor
-
-trait ExamService extends HttpService with CrossLocationRouteDirectives {
+import spray.json.DefaultJsonProtocol._
+import spray.routing.Directive._
+import spray.routing.HListDeserializer._
+import spray.routing._
+import spray.routing.directives._
+import spray.routing.directives.MethodDirectives._
+import spray.http.HttpMethods
+trait ExamService extends HttpService 
+with CrossLocationRouteDirectives 
+with CrossDomainOptionsDirectives
+with spray.httpx.SprayJsonSupport
+{
     
   var exams = mutable.Map.empty[String,ExamData]
   
@@ -43,7 +39,8 @@ trait ExamService extends HttpService with CrossLocationRouteDirectives {
   
   implicit val quizAnswerFormat = jsonFormat2(QuizAnswer)
   implicit val examDataFormat = jsonFormat2(ExamData)
-  implicit val examsCountFormat = jsonFormat1(ExamsCount)
+  implicit val examsCountFormat = jsonFormat1(ExamsCount)  
+  implicit val updateAnswerCommandFormat = jsonFormat2(UpdateAnswerCommand)
   
   val examServiceRoutes =
     path("exams/count") { 
@@ -57,19 +54,26 @@ trait ExamService extends HttpService with CrossLocationRouteDirectives {
     } ~
     path("exams/data" / PathElement){key => 
       get {
-        respondWithMediaType(`application/json`) {
-          complete {
-            getExamData(key).toJson.prettyPrint
+        jsonpWithParameter("callback") {
+          respondWithMediaType(`application/json`) {
+            complete {
+              getExamData(key).toJson.prettyPrint
+              }
             }
           }
         }~ 
         post {
-          formFields('question,'alternative).as(UpdateAnswerCommand){ command =>
-            complete {
-              fromObjectCross("*"){
-            	updateAnswer(key,command.question,command.alternative).toJson.prettyPrint
+          entity(as[UpdateAnswerCommand]){ command =>            
+              complete {  
+              fromObjectCross("*"){                      
+            	 updateAnswer(key,command.question,command.alternative).toJson.prettyPrint               
             	}
-              }
+            }
+          }
+        }~
+        MethodDirectives.method(HttpMethods.OPTIONS) {
+          complete{
+            withOptions("*","POST,OPTIONS")
           }
         }
       }
@@ -77,7 +81,7 @@ trait ExamService extends HttpService with CrossLocationRouteDirectives {
 
 object ExamsCountCommand
 
-case class UpdateAnswerCommand(question:Int,alternative:Int)
+case class UpdateAnswerCommand(alternative:Int,question:Int)
 
 case class ExamsCount(count:Int)
 case class QuizAnswer(question:Int,alternative:Int)
