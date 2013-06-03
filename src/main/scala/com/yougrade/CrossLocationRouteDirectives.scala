@@ -10,13 +10,13 @@ import spray.routing.directives._
 trait CrossLocationRouteDirectives extends RouteDirectives {
   implicit def fromObjectCross[T: Marshaller](origin: String)(obj: T) =
     new CompletionMagnet {
-      def route: StandardRoute = 
-        new CompletionRoute(OK, 
-              RawHeader("Access-Control-Allow-Origin", origin) :: Nil, obj)
+      def route: StandardRoute =
+        new CompletionRoute(OK,
+          RawHeader("Access-Control-Allow-Origin", origin) :: Nil, obj)
     }
 
-  private class CompletionRoute[T: Marshaller](status: StatusCode, 
-                                               headers: List[HttpHeader], 
+  private class CompletionRoute[T: Marshaller](status: StatusCode,
+                                               headers: List[HttpHeader],
                                                obj: T)
     extends StandardRoute {
 
@@ -24,4 +24,5 @@ trait CrossLocationRouteDirectives extends RouteDirectives {
       ctx.complete(status, headers, obj)
     }
   }
+
 }
