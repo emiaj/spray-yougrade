@@ -3,7 +3,7 @@ package com.yougrade
 import spray.json._
 import DefaultJsonProtocol._
 
-object QuizFormats {
+object QuizFormats extends DefaultJsonProtocol {
   implicit val alternativeFormat = jsonFormat1(Alternative)
 
   implicit val answerFormat = jsonFormat1(Answer)

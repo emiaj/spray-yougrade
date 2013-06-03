@@ -4,7 +4,7 @@ import spray.routing._
 import spray.http._
 import MediaTypes._
 import spray.json._
-import DefaultJsonProtocol._
+import QuizFormats._
 
 trait QuizService extends HttpService {
 
