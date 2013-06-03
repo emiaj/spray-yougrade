@@ -11,3 +11,5 @@ case class Question(header: QuestionHeader, answer: Answer)
 case class QuizHeader(id: Int, title: String, description: String, thumbnail: String, lang: String)
 
 case class Quiz(header: QuizHeader, questions: List[Question])
+
+case class QuizResponse(header:QuizHeader,questions:List[QuestionHeader])
