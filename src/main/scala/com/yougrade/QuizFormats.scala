@@ -15,6 +15,14 @@ object QuizFormats extends DefaultJsonProtocol {
 
   implicit val quizFormat = jsonFormat2(Quiz)
 
-  implicit val quizResponseFormat = jsonFormat2(QuizResponse)
+  implicit val quizResponseFormat = jsonFormat2(QuizDetails)
+
+  implicit val languageFormat = jsonFormat2(Language)
+
+  implicit val gradeFormat = jsonFormat4(Grade)
+
+  implicit val questionAnswerFormat = jsonFormat2(QuestionAnswer)
+
+  implicit val examDataFormat = jsonFormat2(ExamData)
 
 }

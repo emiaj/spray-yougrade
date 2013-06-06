@@ -8,12 +8,9 @@ import QuizFormats._
 
 trait QuizService extends HttpService {
 
-
-  private val quizzes = QuizProvider.list
+  private lazy val quizzes = QuizProvider.list
 
   private val quizzesByLang = quizzes.map(x => x._2.header).groupBy(_.lang)
-
-
 
   val quizServiceRoutes =
     path("quizzes" / IntNumber) {
@@ -23,7 +20,7 @@ trait QuizService extends HttpService {
             respondWithMediaType(`application/json`) {
               complete {
                 quizzes.get(id) match {
-                  case Some(Quiz(header,questions)) => QuizResponse(header,questions.map(_.header)).toJson.prettyPrint
+                  case Some(Quiz(header,questions)) => QuizDetails(header,questions.map(_.header)).toJson.prettyPrint
                   case _ => ""
                 }
               }
@@ -31,18 +28,18 @@ trait QuizService extends HttpService {
           }
         }
     } ~
-      path("quizzes" / PathElement) {
-        lang =>
-          get {
-            jsonpWithParameter("callback") {
-              respondWithMediaType(`application/json`) {
-                complete {
-                  quizzesByLang.get(lang).toJson.prettyPrint
-                }
+    path("quizzes" / PathElement) {
+      lang =>
+        get {
+          jsonpWithParameter("callback") {
+            respondWithMediaType(`application/json`) {
+              complete {
+                quizzesByLang.get(lang).toJson.prettyPrint
               }
             }
           }
-      }
+        }
+    }
 }
 
 
