@@ -9,7 +9,9 @@ object Main extends App with SprayCanHttpServerApp {
   val service = system.actorOf(Props[Api], "yougrade-service")
 
   // create a new HttpServer using our handler tell it where to bind to
-  newHttpServer(service) ! Bind(interface = "localhost", port = 8080)
+  val host = "0.0.0.0"
+  val port = Option(System.getenv("PORT")).getOrElse("8080").toInt
+  newHttpServer(service) ! Bind(interface = host, port = port)
 
 }
 
