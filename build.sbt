@@ -1,3 +1,7 @@
+import com.typesafe.startscript.StartScriptPlugin
+
+seq(StartScriptPlugin.startScriptForClassesSettings: _*)
+
 organization  := "com.yougrade"
 
 version       := "0.1"
