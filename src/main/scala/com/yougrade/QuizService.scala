@@ -28,7 +28,7 @@ trait QuizService extends HttpService {
           }
         }
     } ~
-    path("quizzes" / PathElement) {
+    path("quizzes" / Segment) {
       lang =>
         get {
           jsonpWithParameter("callback") {

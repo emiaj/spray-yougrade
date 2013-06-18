@@ -67,7 +67,7 @@ with SprayJsonSupport
         }
       }
     } ~
-      path("exams/data" / PathElement) {
+      path("exams/data" / Segment) {
         key =>
           get {
             jsonpWithParameter("callback") {
