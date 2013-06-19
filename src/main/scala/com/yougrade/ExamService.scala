@@ -58,7 +58,7 @@ with SprayJsonSupport
   }
 
   val examServiceRoutes =
-    path("exams/count") {
+    path("exams" / "count") {
       get {
         respondWithMediaType(`application/json`) {
           complete {
@@ -67,7 +67,7 @@ with SprayJsonSupport
         }
       }
     } ~
-      path("exams/data" / Segment) {
+      path("exams" / "data" / Segment) {
         key =>
           get {
             jsonpWithParameter("callback") {
@@ -88,13 +88,13 @@ with SprayJsonSupport
                   }
               }
             } ~
-            MethodDirectives.method(OPTIONS) {
+            options {
               complete {
                 withOptions("*", OPTIONS, POST)
               }
             }
       } ~
-    path("exams/eval"){
+    path("exams" / "eval"){
       post{
         entity(as[EvalExamCommand]){
           command =>
@@ -105,7 +105,7 @@ with SprayJsonSupport
             }
         }
       } ~
-      MethodDirectives.method(OPTIONS) {
+      options {
         complete {
           withOptions("*", OPTIONS, POST)
         }
