@@ -1,11 +1,9 @@
 package com.yougrade
 
 import akka.actor._
-import spray.routing.HttpService
 
-class Api extends Actor
-with HttpService
-with QuizLanguagesService
+trait Api extends Actor
+with QuizLanguagesPath
 with QuizService
 with ExamService {
   def actorRefFactory = context

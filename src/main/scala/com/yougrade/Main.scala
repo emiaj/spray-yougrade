@@ -9,7 +9,11 @@ object Main extends App {
   implicit val system = ActorSystem("yougrade-system")
 
   // create and start our service actor
-  val service = system.actorOf(Props[Api], "yougrade-service")
+  val service = system.actorOf(Props(new Api {
+    val quizLanguagesActor  = system.actorOf(Props[QuizLanguagesActor])
+  }), "yougrade-service")
+
+
 
   // create a new HttpServer using our handler tell it where to bind to
   val host = "0.0.0.0"
