@@ -16,7 +16,7 @@ object Main extends App {
   val port = Option(System.getenv("PORT")).getOrElse("8080").toInt
 
 
-  IO(Http) ! Http.Bind(service, host, port = 8080)
+  IO(Http) ! Http.Bind(service, host, port = port)
 
 }
 
