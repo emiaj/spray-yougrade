@@ -5,10 +5,10 @@ import akka.actor._
 trait Api extends Actor
 with QuizLanguagesEndpoint
 with QuizService
-with ExamService {
+with ExamEndpoint {
   def actorRefFactory = context
-  def receive = runRoute(quizLanguagesServiceRoutes ~
+  def receive = runRoute(quizLanguagesPaths ~
     quizServiceRoutes ~
-    examServiceRoutes
+    examPaths
   )
 }

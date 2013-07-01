@@ -4,14 +4,15 @@ import spray.routing._
 import QuizFormats._
 
 
-// Commands
-object QuizLanguagesCommands{
+// Protocol
+object QuizLanguagesProtocol{
   case object AvailableLanguages
 }
+import QuizLanguagesProtocol._
+
 
 // Provider
 object QuizLanguagesProvider extends Actor{
-  import com.yougrade.QuizLanguagesCommands.AvailableLanguages
   private val availableLanguages = List(Language("en", "English"))
   def receive = {
     case AvailableLanguages => sender ! availableLanguages
@@ -25,24 +26,22 @@ trait QuizLanguagesEndpoint extends Actor  {
   import akka.pattern._
   import akka.util._
   import scala.concurrent.duration._
-  import QuizLanguagesCommands._
   import spray.http.MediaTypes._
-
 
   import spray.httpx.SprayJsonSupport._
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  def quizLanguagesActor:ActorRef
+  def languageProvider:ActorRef
 
-  implicit val timeout = Timeout(1.minutes)
+  implicit private val timeout = Timeout(1.minutes)
 
-  def quizLanguagesServiceRoutes = {
+  def quizLanguagesPaths = {
     path("languages" / "list"){
       get {
         jsonpWithParameter("callback"){
           respondWithMediaType(`application/json`){
             complete {
-              (quizLanguagesActor ? AvailableLanguages).mapTo[List[Language]]
+              (languageProvider ? AvailableLanguages).mapTo[List[Language]]
             }
           }
         }
