@@ -13,28 +13,31 @@ trait QuizService extends HttpService {
   private val quizzesByLang = quizzes.map(x => x._2.header).groupBy(_.lang)
 
   val quizServiceRoutes =
-    path("quizzes" / IntNumber) {
-      id =>
-        get {
-          jsonpWithParameter("callback") {
-            respondWithMediaType(`application/json`) {
-              complete {
-                quizzes.get(id) match {
-                  case Some(Quiz(header,questions)) => QuizDetails(header,questions.map(_.header)).toJson.prettyPrint
-                  case _ => ""
+      path("quizzes" / IntNumber) {
+        id =>
+          get {
+            jsonpWithParameter("callback") {
+              respondWithMediaType(`application/json`) {
+                complete {
+                  quizzes.get(id) match {
+                    case Some(Quiz(header,questions)) => QuizDetails(header,questions.map(_.header)).toJson.prettyPrint
+                    case None => StatusCodes.NotFound
+                  }
                 }
               }
             }
           }
-        }
-    } ~
+      }~
     path("quizzes" / Segment) {
       lang =>
         get {
           jsonpWithParameter("callback") {
             respondWithMediaType(`application/json`) {
               complete {
-                quizzesByLang.get(lang).toJson.prettyPrint
+                quizzesByLang.get(lang) match {
+                  case Some(x) => x.toJson.prettyPrint
+                  case None => StatusCodes.NotFound
+                }
               }
             }
           }

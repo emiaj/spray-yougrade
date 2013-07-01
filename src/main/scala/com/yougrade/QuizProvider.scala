@@ -57,7 +57,5 @@ object QuizProvider {
     )
   )
 
-  def list = {
-    quizzes.map(x => (x.header.id, x)).toMap
-  }
+  lazy val list =  quizzes.map(x => (x.header.id, x)).toMap
 }

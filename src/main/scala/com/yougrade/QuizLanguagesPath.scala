@@ -1,35 +1,17 @@
 package com.yougrade
 
 import spray.routing._
-
+import akka.pattern._
+import akka.util._
+import scala.concurrent.duration._
+import QuizLanguagesCommands._
+import spray.http.MediaTypes._
 import akka.actor._
 
-object QuizLanguagesProvider{
-  def availableLanguages = List(Language("en", "English"))
-}
-
-object QuizLanguagesCommands{
-  case class AvailableLanguages()
-}
-
-class QuizLanguagesActor extends Actor {
-  import QuizLanguagesCommands._
-  def receive = {
-    case AvailableLanguages => {
-      sender ! QuizLanguagesProvider.availableLanguages
-    }
-  }
-}
-
-trait QuizLanguagesPath {
+trait QuizLanguagesPath extends Actor  {
   this: HttpService =>
 
-  import akka.pattern._
-  import akka.util._
-  import scala.concurrent.duration._
-  import QuizLanguagesCommands._
   import QuizFormats._
-  import spray.http.MediaTypes._
   import spray.httpx.SprayJsonSupport._
   import scala.concurrent.ExecutionContext.Implicits.global
 

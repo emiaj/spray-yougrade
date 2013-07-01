@@ -10,7 +10,7 @@ object Main extends App {
 
   // create and start our service actor
   val service = system.actorOf(Props(new Api {
-    val quizLanguagesActor  = system.actorOf(Props[QuizLanguagesActor])
+    val quizLanguagesActor  = system.actorOf(Props(QuizLanguagesProvider))
   }), "yougrade-service")
 
 
