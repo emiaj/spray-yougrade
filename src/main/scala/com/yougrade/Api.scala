@@ -3,7 +3,7 @@ package com.yougrade
 import akka.actor._
 
 trait Api extends Actor
-with QuizLanguagesPath
+with QuizLanguagesEndpoint
 with QuizService
 with ExamService {
   def actorRefFactory = context
