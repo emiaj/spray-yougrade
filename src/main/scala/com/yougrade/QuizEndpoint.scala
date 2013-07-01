@@ -1,8 +1,23 @@
 package com.yougrade
 
-object QuizProvider {
+import akka.actor._
+import spray.routing._
+import QuizFormats._
 
-  private val quizzes = List(
+// Protocol
+object QuizProtocol {
+
+  case class QuizByIdRequest(id: Int)
+
+  case class QuizzesByLangRequest(lang: String)
+
+}
+
+import QuizProtocol._
+
+// Provider
+object QuizProvider {
+  private lazy val quizzes = List(
     Quiz(QuizHeader(1,
       "Learn English with \"The Big Bang Theory\"",
       "Show your knowledge on the English language using videos from The Big Bang Theory",
@@ -57,5 +72,64 @@ object QuizProvider {
     )
   )
 
-  lazy val list =  quizzes.map(x => (x.header.id, x)).toMap
+  private lazy val byIdMap = quizzes.map(x => (x.header.id, x)).toMap
+  private lazy val byLangMap = quizzes.map(x => x.header).groupBy(_.lang)
+
+
+  def quizById(id:Int) = byIdMap.get(id)
+  def quizzesByLang(lang:String) = byLangMap.get(lang)
+}
+
+// Endpoint
+
+trait QuizEndpoint extends Actor {
+  this: HttpService =>
+
+  import akka.pattern._
+  import akka.util._
+  import scala.concurrent.duration._
+  import spray.http.MediaTypes._
+  import spray.http.StatusCodes._
+
+  import spray.httpx.SprayJsonSupport._
+  import scala.concurrent.ExecutionContext.Implicits.global
+
+  implicit private val timeout = Timeout(1.minutes)
+
+  def quizPaths = {
+    pathPrefix("quizzes") {
+      path(IntNumber) {
+        id => {
+          get {
+            jsonpWithParameter("callback") {
+              respondWithMediaType(`application/json`) {
+                complete {
+                  QuizProvider.quizById(id) match {
+                    case Some(quiz) => quiz
+                    case _ => NotFound
+                  }
+                }
+              }
+            }
+          }
+        }
+      } ~
+        path(Segment) {
+          lang => {
+            get {
+              jsonpWithParameter("callback") {
+                respondWithMediaType(`application/json`) {
+                  complete {
+                    QuizProvider.quizzesByLang(lang) match {
+                      case Some(quizzes) => quizzes
+                      case _ => NotFound
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+    }
+  }
 }
