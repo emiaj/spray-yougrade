@@ -115,62 +115,65 @@ trait ExamEndpoint extends Actor with CrossLocationRouteDirectives with CrossDom
   implicit private val timeout = Timeout(1.minutes)
 
   def examPaths = {
-    path("exams" / "count") {
-      get {
-        respondWithMediaType(`application/json`) {
-          complete {
-            (examProvider ? CountRequest).mapTo[CountResponse]
-          }
-        }
-      }
-    } ~
-    path("exams" / "data" / Segment) {
-      key => {
+    pathPrefix("exams") {
+      path("count") {
         get {
-          jsonpWithParameter("callback") {
-            respondWithMediaType(`application/json`) {
-              complete {
-                (examProvider ? GetExamRequest(key)).mapTo[ExamData]
-              }
+          respondWithMediaType(`application/json`) {
+            complete {
+              (examProvider ? CountRequest).mapTo[CountResponse]
             }
           }
-        } ~
-          post {
-            entity(as[UpdateAnswerRequest]) {
-              e => {
+        }
+      } ~
+      path("data" / Segment) {
+        key => {
+          get {
+            jsonpWithParameter("callback") {
+              respondWithMediaType(`application/json`) {
                 complete {
-                  fromObjectCross("*") {
-                    val r = e.toUpdateExamAnswerRequest(key)
-                    (examProvider ? r).mapTo[ExamData]
-                  }
+                  (examProvider ? GetExamRequest(key)).mapTo[ExamData]
                 }
               }
             }
           } ~
+            post {
+              entity(as[UpdateAnswerRequest]) {
+                e => {
+                  complete {
+                    fromObjectCross("*") {
+                      val r = e.toUpdateExamAnswerRequest(key)
+                      (examProvider ? r).mapTo[ExamData]
+                    }
+                  }
+                }
+              }
+            } ~
+            options {
+              complete {
+                withOptions("*", OPTIONS, POST)
+              }
+            }
+        }
+      } ~
+      path("eval") {
+        post {
+          entity(as[EvalExamRequest]) {
+            e => {
+              complete {
+                fromObjectCross("*") {
+                  (examProvider ? e).mapTo[Grade]
+                }
+              }
+            }
+          }
+        } ~
           options {
             complete {
               withOptions("*", OPTIONS, POST)
             }
           }
       }
-    } ~
-    path("exams" / "eval") {
-      post {
-        entity(as[EvalExamRequest]) {
-          e => {
-            complete {
-              fromObjectCross("*") {
-                (examProvider ? e).mapTo[Grade]
-              }
-            }
-          }
-        }
-      } ~
-      options {
-        complete {
-          withOptions("*", OPTIONS, POST)
-        }
-      }
     }
   }
+
 }
