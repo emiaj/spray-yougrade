@@ -73,7 +73,7 @@ object QuizProvider {
   )
 
   private lazy val byIdMap = quizzes.map(x => (x.header.id, x)).toMap
-  private lazy val byLangMap = quizzes.map(x => x.header).groupBy(_.lang)
+  private lazy val byLangMap = quizzes.groupBy(_.header.lang)
 
 
   def quizById(id:Int) = byIdMap.get(id)
@@ -105,7 +105,7 @@ trait QuizEndpoint extends Actor {
               respondWithMediaType(`application/json`) {
                 complete {
                   QuizProvider.quizById(id) match {
-                    case Some(quiz) => quiz
+                    case Some(quiz) => QuizDetails(quiz.header,quiz.questions.map(_.header))
                     case _ => NotFound
                   }
                 }
@@ -121,7 +121,7 @@ trait QuizEndpoint extends Actor {
                 respondWithMediaType(`application/json`) {
                   complete {
                     QuizProvider.quizzesByLang(lang) match {
-                      case Some(quizzes) => quizzes
+                      case Some(quizzes) => quizzes.map(_.header)
                       case _ => NotFound
                     }
                   }

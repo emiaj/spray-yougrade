@@ -24,7 +24,7 @@ object ExamProtocol {
   case class UpdateExamAnswerRequest(key: String, alternative: Int, question: Int)
 
   // Evaluating
-  case class EvalExamRequest(key: String, quiz: Int)
+  case class EvalExamRequest(exam: String, quiz: Int)
 
 
   // Custom Formats
