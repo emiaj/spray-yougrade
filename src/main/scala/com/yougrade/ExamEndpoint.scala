@@ -34,10 +34,12 @@ object ExamProtocol {
 }
 
 import ExamProtocol._
+import org.eligosource.eventsourced.core._
 
 
 // Provider
-object ExamProvider extends Actor {
+class ExamProvider extends Actor {
+  this: Behavior  =>
 
   import QuizProtocol._
   import akka.util._
@@ -53,13 +55,13 @@ object ExamProvider extends Actor {
       case None => {
         val exam = ExamData(key, Nil)
         val newState = state(exams + (key -> exam))
-        context.become(newState)
+        become(newState)
         exam
       }
     }
   }
 
-  def receive = state(Map.empty)
+  override def receive = state(Map.empty)
 
   def state(exams: Map[String, ExamData]): Receive = {
     case CountRequest => sender ! CountResponse(exams.size)
@@ -72,7 +74,7 @@ object ExamProvider extends Actor {
       val answers = QuestionAnswer(question, alternative) :: original.answers.filterNot(_.question == question)
       val update = original.copy(answers = answers)
       val newState = state(exams.updated(key, update))
-      context.become(newState)
+      become(newState)
       sender ! update
     }
     case EvalExamRequest(key, quiz) => {
@@ -87,9 +89,10 @@ object ExamProvider extends Actor {
           val approved = correct > incorrect
           sender ! Grade(questions, correct, incorrect, approved)
         }
-        case _ => sender ! Grade(0, 0, 0, false)
+        case _ => sender ! Grade(0, 0, 0, approved = false)
       }
     }
+    case msg => println(s"SOMETHING IS WRONG!!: $msg")
   }
 }
 
@@ -131,7 +134,7 @@ trait ExamEndpoint extends Actor with CrossLocationRouteDirectives with CrossDom
             jsonpWithParameter("callback") {
               respondWithMediaType(`application/json`) {
                 complete {
-                  (examProvider ? GetExamRequest(key)).mapTo[ExamData]
+                  (examProvider ? Message(GetExamRequest(key))).mapTo[ExamData]
                 }
               }
             }
@@ -141,7 +144,7 @@ trait ExamEndpoint extends Actor with CrossLocationRouteDirectives with CrossDom
                 e => {
                   complete {
                     fromObjectCross("*") {
-                      val r = e.toUpdateExamAnswerRequest(key)
+                      val r = Message(e.toUpdateExamAnswerRequest(key))
                       (examProvider ? r).mapTo[ExamData]
                     }
                   }
@@ -161,7 +164,7 @@ trait ExamEndpoint extends Actor with CrossLocationRouteDirectives with CrossDom
             e => {
               complete {
                 fromObjectCross("*") {
-                  (examProvider ? e).mapTo[Grade]
+                  (examProvider ? Message(e)).mapTo[Grade]
                 }
               }
             }

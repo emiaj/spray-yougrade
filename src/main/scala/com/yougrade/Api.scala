@@ -3,7 +3,7 @@ package com.yougrade
 import akka.actor._
 import spray.routing.HttpService
 
-trait Api extends Actor
+class Api(val examProvider:ActorRef,val languageProvider:ActorRef) extends Actor
 with HttpService
 with QuizLanguagesEndpoint
 with QuizEndpoint
