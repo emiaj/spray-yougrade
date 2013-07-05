@@ -22,9 +22,18 @@ object Main extends App {
   val service = system.actorOf(Props(new Api(examProvider, languageProvider) {
   }), "yougrade-service")
 
+  def time[A](a: => A) = {
+    val now = System.nanoTime
+    val result = a
+    val micros = (System.nanoTime - now) / 1000
+    println("%d microseconds".format(micros))
+    println("%d s".format(micros / 1000000))
+    result
+  }
 
-  extension.recover()
-
+  println("start recover")
+  time(extension.recover())
+  println("recovered")
 
   val host = "0.0.0.0"
   val port = Option(System.getenv("PORT")).getOrElse("8080").toInt
