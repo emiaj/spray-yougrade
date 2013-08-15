@@ -33,7 +33,8 @@ libraryDependencies ++= Seq(
     "com.typesafe.akka" %% "akka-testkit" % "2.2.0-RC1" % "test",
     "org.specs2" %% "specs2" % "2.0-RC2" % "test",
     "org.eligosource" %% "eventsourced-core" % "0.6-SNAPSHOT",
-    "org.eligosource" %% "eventsourced-journal-leveldb" % "0.6-SNAPSHOT"
+    "org.eligosource" %% "eventsourced-journal-leveldb" % "0.6-SNAPSHOT",
+    "org.scalatest" %% "scalatest" % "2.0.M6-SNAP26"
 )
 
 seq(Revolver.settings: _*)
