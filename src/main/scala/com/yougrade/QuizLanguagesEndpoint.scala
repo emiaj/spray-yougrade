@@ -20,8 +20,7 @@ object QuizLanguagesProvider extends Actor{
 }
 
 // Endpoint
-trait QuizLanguagesEndpoint extends Actor  {
-  this: HttpService =>
+trait QuizLanguagesEndpoint extends HttpService  {
 
   import akka.pattern._
   import akka.util._
